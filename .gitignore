@@ -17,3 +17,6 @@ data/
 
 # Project plots
 plots/
+
+# Project docs (temporarily)
+docs/
