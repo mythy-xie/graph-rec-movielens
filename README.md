@@ -35,7 +35,7 @@ uv sync
 
 ```
 
-*This will automatically create a virtual environment and install Python 3.10+, PyTorch, PyG, and all required dependencies.*
+*This will automatically create a virtual environment and install Python 3.14+, PyTorch, PyG, and all required dependencies.*
 
 ---
 
