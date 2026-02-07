@@ -97,7 +97,7 @@ uv run src/data_loader.py
 
 ##  5. Troubleshooting
 
-Below are the setup issues @mythy-xie encountered during the encoding process. Recommend checking these preparations in advance.
+Below are the setup issues [@mythy-xie](https://github.com/mythy-xie) encountered during the encoding process. Recommend checking these preparations in advance.
 
 **Q: `FileNotFoundError` when running the script?**
 
