@@ -124,10 +124,10 @@ class MovieLensDataLoader:
             ]
 
         if len(valid_ratings) < len(self.df_ratings):
-            logger.warning(f"过滤掉了 {len(self.df_ratings) - len(valid_ratings)} 条无效 ID 的评分记录")
+            logger.warning(f" {len(self.df_ratings) - len(valid_ratings)} invalid ID rating records were filtered out")
 
         src = [self.user_id_map[uid] for uid in valid_ratings['user_id']]
-        dst = [self.movie_id_map[mid] for mid in valid_ratings['movie_id']]  # 注意这里之前 zip 写法可能有隐患，改用 list comprehension
+        dst = [self.movie_id_map[mid] for mid in valid_ratings['movie_id']]
 
         edge_index = torch.tensor([src, dst], dtype=torch.long)
         edge_attr = torch.tensor(valid_ratings['rating'].values, dtype=torch.float)
