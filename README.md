@@ -79,7 +79,7 @@ uv run env_tester.py
 
 ```
 
-##  4. Experiments (to be finished)
+##  4. Dataset Experiments and Analysis
 
 Run the data loader to verify the environment and data paths:
 
@@ -95,7 +95,39 @@ uv run src/data_loader.py
 
 ---
 
-##  5. Troubleshooting
+##  5. Running the Pipeline & Experiments
+
+### Step 1: Verify Data Processing (Optional)
+You can verify the environment and data paths by running the data loader directly:
+```bash
+uv run src/data_loader.py
+
+```
+
+**Expected Output:** The terminal will display the bipartite `HeteroData` structure, and a `plots/` folder will be automatically generated containing data distribution visualizations.
+
+### Step 2: Train the GraphSAGE Model
+
+Execute the full training, validation, and testing pipeline:
+
+```bash
+uv run src/trainer.py
+
+```
+
+**Expected Output:**
+
+1. **Hardware Acceleration:** The script automatically detects and utilizes the best available hardware (`mps` for Mac Apple Silicon, `cuda` for NVIDIA GPUs, or `cpu`).
+2. **Graph Splitting:** It performs a strict `RandomLinkSplit` to ensure no data leakage between Train, Validation, and Test edges.
+3. **Training Logs:** You will see epoch-by-epoch progress tracking **Train Loss (MSE)**, **Val RMSE**, **Recall@10**, and **NDCG@10**.
+4. **Checkpointing:** The best model weights are automatically saved to a `checkpoints/` directory.
+5. **Final Evaluation:** After training, the model evaluates the unseen Test Set. For the ML-100k dataset, you can expect a Test RMSE of ~1.01, Recall@10 of ~0.86, and NDCG@10 of ~0.84.
+
+
+
+---
+
+##  6. Troubleshooting
 
 Below are the setup issues [@mythy-xie](https://github.com/mythy-xie) encountered during the encoding process. Recommend checking these preparations in advance.
 
