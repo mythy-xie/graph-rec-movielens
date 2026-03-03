@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from torch_geometric.nn import SAGEConv, HeteroConv, Linear
+from torch_geometric.nn import SAGEConv, HeteroConv, Linear, GCNConv, GatedGraphConv
 from typing import Dict
 
 
@@ -65,6 +65,65 @@ class LinkPredictor(torch.nn.Module):
         predictions = (user_embeddings * movie_embeddings).sum(dim=-1)
 
         return predictions
+
+
+class MovieLensGCN(torch.nn.Module):
+
+    def __init__(self, hidden_channels: int, out_channels: int, num_layers: int = 2, dropout: float = 0.5):
+        super().__init__()
+        self.dropout = dropout
+        self.lin_dict = torch.nn.ModuleDict({
+            'user': Linear(-1, hidden_channels),
+            'movie': Linear(-1, hidden_channels)
+        })
+        self.convs = torch.nn.ModuleList()
+        for _ in range(num_layers):
+            conv = HeteroConv({
+                ('user', 'rates', 'movie'): GCNConv(hidden_channels, hidden_channels, add_self_loops=False),
+                ('movie', 'rated_by', 'user'): GCNConv(hidden_channels, hidden_channels, add_self_loops=False),
+            }, aggr='sum')
+            self.convs.append(conv)
+
+        self.out_lin_dict = torch.nn.ModuleDict({
+            'user': Linear(hidden_channels, out_channels),
+            'movie': Linear(hidden_channels, out_channels)
+        })
+
+    def forward(self, x_dict, edge_index_dict):
+        x_dict = {k: F.leaky_relu(self.lin_dict[k](v)) for k, v in x_dict.items()}
+        for conv in self.convs:
+            x_dict = conv(x_dict, edge_index_dict)
+            x_dict = {k: F.dropout(F.leaky_relu(v), p=self.dropout, training=self.training) for k, v in x_dict.items()}
+        return {k: self.out_lin_dict[k](v) for k, v in x_dict.items()}
+
+
+class MovieLensGGNN(torch.nn.Module):
+
+    def __init__(self, hidden_channels: int, out_channels: int, num_layers: int = 2, dropout: float = 0.5):
+        super().__init__()
+        self.dropout = dropout
+        self.lin_dict = torch.nn.ModuleDict({
+            'user': Linear(-1, hidden_channels),
+            'movie': Linear(-1, hidden_channels)
+        })
+
+        self.conv = HeteroConv({
+            ('user', 'rates', 'movie'): GatedGraphConv(hidden_channels, num_layers=num_layers),
+            ('movie', 'rated_by', 'user'): GatedGraphConv(hidden_channels, num_layers=num_layers),
+        }, aggr='sum')
+
+        self.out_lin_dict = torch.nn.ModuleDict({
+            'user': Linear(hidden_channels, out_channels),
+            'movie': Linear(hidden_channels, out_channels)
+        })
+
+    def forward(self, x_dict, edge_index_dict):
+        x_dict = {k: F.leaky_relu(self.lin_dict[k](v)) for k, v in x_dict.items()}
+
+        x_dict = self.conv(x_dict, edge_index_dict)
+        x_dict = {k: F.dropout(F.leaky_relu(v), p=self.dropout, training=self.training) for k, v in x_dict.items()}
+
+        return {k: self.out_lin_dict[k](v) for k, v in x_dict.items()}
 
 
 if __name__ == "__main__":
