@@ -20,3 +20,8 @@ plots/
 
 # Project docs (temporarily)
 docs/
+
+# temp
+logs_old/
+logs/
+checkpoints/
