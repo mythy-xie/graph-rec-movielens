@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from torch_geometric.nn import SAGEConv, HeteroConv, Linear, GCNConv, GatedGraphConv
+from torch_geometric.nn import SAGEConv, HeteroConv, Linear, GraphConv, GatedGraphConv
 from typing import Dict
 
 
@@ -79,8 +79,8 @@ class MovieLensGCN(torch.nn.Module):
         self.convs = torch.nn.ModuleList()
         for _ in range(num_layers):
             conv = HeteroConv({
-                ('user', 'rates', 'movie'): GCNConv(hidden_channels, hidden_channels, add_self_loops=False),
-                ('movie', 'rated_by', 'user'): GCNConv(hidden_channels, hidden_channels, add_self_loops=False),
+                ('user', 'rates', 'movie'): GraphConv(hidden_channels, hidden_channels),
+                ('movie', 'rated_by', 'user'): GraphConv(hidden_channels, hidden_channels),
             }, aggr='sum')
             self.convs.append(conv)
 
