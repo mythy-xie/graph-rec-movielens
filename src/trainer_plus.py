@@ -28,6 +28,7 @@ def setup_logger(args: argparse.Namespace) -> logging.Logger:
 
     logger = logging.getLogger("TrainerPlus")
     logger.setLevel(logging.INFO)
+    logger.handlers.clear()
 
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
@@ -82,6 +83,7 @@ class ModelTrainerPlus:
 
         transform = T.RandomLinkSplit(
             num_val=0.1, num_test=0.0,
+            neg_sampling_ratio=0.0,
             edge_types=[('user', 'rates', 'movie')],
             rev_edge_types=[('movie', 'rated_by', 'user')],
         )
@@ -209,7 +211,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print("\n" + "=" * 60)
-    print(f"🎬 MovieLens GNN Experiments | Dataset: {args.dataset} | Model: {args.model}")
+    print(f"MovieLens GNN Experiments | Dataset: {args.dataset} | Model: {args.model}")
     print("=" * 60 + "\n")
     logger = setup_logger(args)
 
