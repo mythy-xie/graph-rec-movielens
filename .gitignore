@@ -23,6 +23,5 @@ docs/
 
 # temp
 logs_old/
-
 logs/
 checkpoints/
