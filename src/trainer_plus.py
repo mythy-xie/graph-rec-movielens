@@ -95,18 +95,18 @@ class ModelTrainerPlus:
         self.logger.info(f"   - Warm User: {len(warm_user_indices)} | Cold User: {len(cs_user_indices)}")
         self.logger.info(f"   - Inductive evaluation of edge count (Test): {is_cs_edge.sum().item()}")
 
+        self.logger.info(f"Building {args.model} architecture...")
         if args.model == 'SAGE':
             self.model = MovieLensSAGE(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
         elif args.model == 'GCN':
-            # TODO: model.py  MovieLensGCN
-            self.logger.warning("The GCN model placeholder is being called; please ensure it is implemented in model.py. We are temporarily reverting to the SAGE architecture.")
-            self.model = MovieLensSAGE(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
+            self.model = MovieLensGCN(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
         elif args.model == 'GGNN':
-            # TODO: model.py  MovieLensGGNN
-            self.logger.warning("The GGNN model placeholder has been called. We are temporarily reverting to the SAGE architecture.")
-            self.model = MovieLensSAGE(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
+            self.model = MovieLensGGNN(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
         else:
-            raise ValueError(f"Unsupported model types: {args.model}")
+            self.logger.error(f"Unsupported model type requested: {args.model}")
+            raise ValueError(f"Unsupported model type: {args.model}")
+
+        self.logger.info(f"Successfully instantiated {args.model} and moved to {self.device}.")
 
         self.predictor = LinkPredictor().to(self.device)
         self.optimizer = torch.optim.Adam(
