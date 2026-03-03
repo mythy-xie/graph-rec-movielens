@@ -123,6 +123,29 @@ uv run src/trainer.py
 4. **Checkpointing:** The best model weights are automatically saved to a `checkpoints/` directory.
 5. **Final Evaluation:** After training, the model evaluates the unseen Test Set. For the ML-100k dataset, you can expect a Test RMSE of ~1.01, Recall@10 of ~0.86, and NDCG@10 of ~0.84.
 
+### Step 3: Run Automated Ablation Studies & Cold-Start Evaluation
+
+To address the strict requirements of inductive generalization and baseline comparisons, we implemented an advanced training engine (`trainer_plus.py`) and an automated bash script. This pipeline evaluates GraphSAGE against GCN (Spatial) and GAT (Graph Attention Network) under a strict cold-start scenario.
+
+Execute the automated experimental suite:
+
+```bash
+# Grant execution permission (only needed once)
+chmod +x scripts/run_experiments.sh
+
+# Run the automated batch experiments
+./scripts/run_experiments.sh
+
+```
+
+*(Alternatively, you can run single experiments dynamically using CLI arguments: `uv run src/trainer_plus.py --model GAT --dataset 100k --cold_start_ratio 0.1`)*
+
+**Expected Output:**
+
+1. **Automated Baseline Comparison:** The script will sequentially initialize, train, and evaluate **SAGE**, **GCN**, and **GAT** architectures, allowing for direct comparison of their structural advantages.
+2. **Explicit Cold-Start Simulation (Inductive Setting):** A predefined ratio of users (e.g., 10%) are completely isolated from the message-passing graph during training. The final evaluation strictly tests the model's inductive generalization capability on these unseen nodes.
+3. **Computational Cost Tracking:** The terminal logs will report precise training durations (seconds per epoch) and inference latency, essential for evaluating the production viability of each GNN architecture.
+4. **Persistent Dual-Stream Logging:** Alongside the console output, complete timestamped logs (tagged with hyperparameter configurations like `100k_SAGE_lr0.01_cs0.1_...log`) are automatically saved to the `logs/` directory for robust experiment tracking and report generation.
 
 
 ---
