@@ -16,7 +16,7 @@ sys.path.append(str(project_root))
 
 from src.data_loader import MovieLensDataLoader
 from src.utils import compute_rmse, compute_ranking_metrics
-from src.model import MovieLensSAGE, MovieLensGCN, MovieLensGGNN, LinkPredictor
+from src.model import MovieLensSAGE, MovieLensGCN, MovieLensGAT, LinkPredictor
 
 
 def setup_logger(args: argparse.Namespace) -> logging.Logger:
@@ -27,6 +27,7 @@ def setup_logger(args: argparse.Namespace) -> logging.Logger:
     log_filename = log_dir / f"{args.dataset}_{args.model}_lr{args.lr}_cs{args.cold_start_ratio}_{timestamp}.log"
 
     logger = logging.getLogger("TrainerPlus")
+    logger.propagate = False
     logger.setLevel(logging.INFO)
     logger.handlers.clear()
 
@@ -102,8 +103,8 @@ class ModelTrainerPlus:
             self.model = MovieLensSAGE(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
         elif args.model == 'GCN':
             self.model = MovieLensGCN(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
-        elif args.model == 'GGNN':
-            self.model = MovieLensGGNN(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
+        elif args.model == 'GAT':
+            self.model = MovieLensGAT(hidden_channels=args.hidden_channels, out_channels=16).to(self.device)
         else:
             self.logger.error(f"Unsupported model type requested: {args.model}")
             raise ValueError(f"Unsupported model type: {args.model}")
@@ -201,7 +202,7 @@ class ModelTrainerPlus:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MovieLens Graph Recommender System - Advanced Trainer")
     parser.add_argument('--dataset', type=str, choices=['100k', '1m'], default='100k', help='Dataset version')
-    parser.add_argument('--model', type=str, choices=['SAGE', 'GCN', 'GGNN'], default='SAGE', help='GNN Model selection')
+    parser.add_argument('--model', type=str, choices=['SAGE', 'GCN', 'GAT'], default='SAGE', help='GNN Model selection')
     parser.add_argument('--epochs', type=int, default=50, help='Number of training rounds')
     parser.add_argument('--lr', type=float, default=0.01, help='Learning rate')
     parser.add_argument('--hidden_channels', type=int, default=32, help='Hidden layer dimensions')

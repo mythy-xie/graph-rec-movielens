@@ -13,7 +13,7 @@ echo "========================================================================"
 echo "Start the automated comparison experiment | Dataset: ML-${DATASET} | Cold start ratio: ${COLD_START_RATIO}"
 echo "========================================================================"
 
-for MODEL in SAGE GCN GGNN
+for MODEL in SAGE GCN GAT
 do
     echo ""
     echo "------------------------------------------------------------------------"
